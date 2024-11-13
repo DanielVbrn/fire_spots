@@ -1,11 +1,10 @@
 import redis
 import json
-import pandas as pd  # Importando pandas aqui
+import pandas as pd
 
 def connect_to_redis():
     """Conecta ao Redis e retorna o cliente."""
-    redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
-    return redis_client
+    return redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 
 def store_data_in_redis(df, redis_client):
     """Armazena os dados do DataFrame no Redis."""
@@ -14,11 +13,7 @@ def store_data_in_redis(df, redis_client):
     for i, record in enumerate(records):
         redis_client.set(f'foco_incendio:{i}', json.dumps(record))
 
-def retrieve_data_from_redis(redis_client):
-    """Recupera os dados armazenados no Redis e retorna como um DataFrame."""
-    retrieved_records = []
-    
-    for key in redis_client.scan_iter("foco_incendio:*"):
-        retrieved_records.append(json.loads(redis_client.get(key)))
-    
-    return pd.DataFrame(retrieved_records)  # Agora pandas (pd) está importado corretamente
+def load_csv_to_redis(file_path, redis_client):
+    """Carrega dados de um arquivo CSV para o Redis."""
+    df = pd.read_csv(file_path)
+    store_data_in_redis(df, redis_client)

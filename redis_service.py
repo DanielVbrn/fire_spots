@@ -1,23 +1,17 @@
-import redis
 import json
 import pandas as pd
 from redis_connection import connect_to_redis
 
-# Conectar ao Redis
-redis_client = connect_to_redis()
-
 class RedisService:
-    
     def __init__(self, redis_client):
         self.redis_client = redis_client
 
     def get_all_focos(self):
-        """Retorna todos os focos de incêndio armazenados no Redis como DataFrame."""
-        retrieved_records = []
-        for key in self.redis_client.scan_iter("foco_incendio:*"):
-            retrieved_records.append(json.loads(self.redis_client.get(key)))
-        
-        # Garantir que a coluna 'DataHora' seja convertida para datetime
+        """Recupera todos os dados armazenados no Redis e retorna como um DataFrame."""
+        retrieved_records = [
+            json.loads(self.redis_client.get(key)) 
+            for key in self.redis_client.scan_iter("foco_incendio:*")
+        ]
         df = pd.DataFrame(retrieved_records)
         df['DataHora'] = pd.to_datetime(df['DataHora'], format='%Y/%m/%d %H:%M:%S')
         return df
@@ -45,9 +39,5 @@ class RedisService:
     def get_focos_por_mes(self):
         """Retorna a contagem de focos por mês."""
         df = self.get_all_focos()
-        
-        # Garantir que a coluna 'DataHora' esteja no formato datetime
-        df['DataHora'] = pd.to_datetime(df['DataHora'], errors='coerce')  # Converte novamente se necessário
-        return df.groupby(df['DataHora'].dt.to_period('M')).size()
-
-    # Outros métodos específicos de consulta podem ser adicionados aqui
+        df['Mes'] = df['DataHora'].dt.to_period('M')
+        return df.groupby('Mes').size()
