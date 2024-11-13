@@ -38,3 +38,27 @@ Para configurar o ambiente, siga estas etapas:
    ```bash
    git clone https://github.com/seu-usuario/nome-do-repositorio.git
    cd nome-do-repositorio
+
+2. Instale as dependências usando o pip
+- pip install flask dash redis pandas plotly
+
+3. Certifique-se de ter o Redis instalado e rodando. Caso ainda não tenha o Redis, instale-o conforme instruções para seu sistema operacional:
+- Ubuntu: sudo apt-get install redis-server
+- MacOS: brew install redis
+- Windows: Siga este link para o Redis no Windows.
+
+4. Inicie o servidor Redis:
+- redis-server
+
+
+
+## Executando o Sistema
+1. Certifique-se de que o Redis está ativo.
+
+2. Carregue os dados do arquivo focos_incendio.csv para o Redis usando o main.py.
+
+3. Execute o main.py para iniciar o servidor e o dashboard:
+- python main.py
+
+4.Acesse o dashboard interativo no navegador, indo para:
+- http://localhost:8050

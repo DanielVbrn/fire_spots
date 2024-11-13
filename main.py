@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
 from dash import Dash, dcc, html
 import dash_core_components as dcc
 import dash_html_components as html
@@ -7,16 +7,15 @@ import pandas as pd
 from redis_connection import connect_to_redis, load_csv_to_redis
 from redis_service import RedisService
 
-# Configurar o Flask
 app = Flask(__name__)
 dash_app = Dash(__name__, server=app, url_base_pathname='/dashboard/')
 
-# Conectar ao Redis e carregar dados
+
 redis_client = connect_to_redis()
 load_csv_to_redis("focos_incendio.csv", redis_client)
 redis_service = RedisService(redis_client)
 
-# Layout do Dashboard
+
 dash_app.layout = html.Div([
     html.H1("Dashboard de Focos de Incêndio"),
     dcc.Dropdown(
@@ -33,7 +32,7 @@ dash_app.layout = html.Div([
     dcc.Graph(id='graph')
 ])
 
-# Atualização dos gráficos
+
 @dash_app.callback(
     Output('graph', 'figure'),
     [Input('dropdown', 'value')]
@@ -71,6 +70,10 @@ def update_graph(selected_option):
         }
     return figure
 
-# Executar o servidor Flask com Dash
+@app.route('/')
+def home():
+    return redirect(url_for('/dashboard/'))  
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=8050)
